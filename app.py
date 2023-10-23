@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from services.dbservice import DBService
 from DTOs.request.TextDocumentRequestDTO import TextDocumentRequestDTO
+from typing import List
 import uvicorn
 
 app = FastAPI()
@@ -21,10 +22,15 @@ db_service = DBService()
 async def root():
     return {"message": "200 OK"}
 
-@app.post("/insert}")
+@app.post("/insert")
 def insert_text(textDocumentRequestDTO : TextDocumentRequestDTO):
     db_service.insert_text(textDocumentRequestDTO)
     return 200
+
+@app.get("/{heading}")
+def get_text(heading : str) -> List[TextDocumentRequestDTO]:
+    result = db_service.get_text(heading)
+    return result
 
 
 if __name__ == '__main__':
