@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from services.dbservice import DBService
 from DTOs.request.TextDocumentRequestDTO import TextDocumentRequestDTO
@@ -6,6 +6,7 @@ from typing import List
 from services.UserService import UserService
 from DTOs.User import User
 import uvicorn
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 app = FastAPI()
 
@@ -44,6 +45,13 @@ def register(user: User):
     else:
         raise HTTPException(status_code=422, detail="User already exists")
 
+@app.post("/token")
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    access_token = user_svc.get_access_token(form_data)
+
+    if access_token is not None:
+        return {"access_token": access_token, "token_type": "bearer"}
+    else: raise HTTPException(status_code=400, detail="Incorrect username or password")
 
 if __name__ == '__main__':
     uvicorn.run("app:app",host='0.0.0.0', port=8000, reload=True)
