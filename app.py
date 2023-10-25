@@ -31,21 +31,13 @@ async def root():
 
 @app.post("/insert")
 def insert_text(textDocumentRequestDTO : TextDocumentRequestDTO, token: str = Depends(oauth2_scheme)):
-    status = user_svc.authenticate(token)
-
-    if status == 400: raise HTTPException(status_code=400, detail="Could not validate credentials, user not found.")
-    if status == 401: raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
-    
+    user_svc.authenticate(token)
     db_service.insert_text(textDocumentRequestDTO)
     return 200
 
 @app.get("/{heading}")
 def get_text(heading : str, token: str = Depends(oauth2_scheme)) -> List[TextDocumentRequestDTO]:
-    status = user_svc.authenticate(token)
-
-    if status == 400: raise HTTPException(status_code=400, detail="Could not validate credentials, user not found.")
-    if status == 401: raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
-
+    user_svc.authenticate(token)
     result = db_service.get_text(heading)
     return result
 

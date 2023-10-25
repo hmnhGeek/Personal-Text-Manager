@@ -71,7 +71,6 @@ class UserRepository(IUserRepository):
             payload = jwt.decode(token, os.environ.get("SECRET_KEY"), algorithms=[os.environ.get("ALGORITHM")])
             username: str = payload.get("sub")
             if username is None:
-                return 400
-            return 200
+                raise HTTPException(status_code=400, detail="Could not validate credentials, user not found.")
         except PyJWTError:
-            return 401
+            raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
