@@ -30,7 +30,12 @@ async def root():
     return {"message": "200 OK"}
 
 @app.post("/insert")
-def insert_text(textDocumentRequestDTO : TextDocumentRequestDTO):
+def insert_text(textDocumentRequestDTO : TextDocumentRequestDTO, token: str = Depends(oauth2_scheme)):
+    status = user_svc.authenticate(token)
+
+    if status == 400: raise HTTPException(status_code=400, detail="Could not validate credentials, user not found.")
+    if status == 401: raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
+    
     db_service.insert_text(textDocumentRequestDTO)
     return 200
 
