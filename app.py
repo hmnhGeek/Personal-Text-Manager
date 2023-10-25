@@ -9,8 +9,18 @@ import uvicorn
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt import PyJWTError
 import jwt
+from controllers.UserController import user_controller_router
 
 app = FastAPI()
+
+tags_metadata = [
+    {"name": "Users", "description": "Operations related to user management"},
+    {"name": "Text", "description": "Operations related to text management"},
+]
+
+# Include the routers from controller modules
+app.include_router(user_controller_router, prefix="/users", tags=["Users"])
+# app.include_router(items.router, prefix="/texts", tags=["Text"])
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,43 +30,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-db_service = DBService()
-user_svc = UserService()
+# db_service = DBService()
+# user_svc = UserService()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-@app.get("/")
-async def root():
-    return {"message": "200 OK"}
+# @app.get("/")
+# async def root():
+#     return {"message": "200 OK"}
 
-@app.post("/insert")
-def insert_text(textDocumentRequestDTO : TextDocumentRequestDTO, token: str = Depends(oauth2_scheme)):
-    user_svc.authenticate(token)
-    db_service.insert_text(textDocumentRequestDTO)
-    return 200
+# @app.post("/insert", tags=["Text"])
+# def insert_text(textDocumentRequestDTO : TextDocumentRequestDTO, token: str = Depends(oauth2_scheme)):
+#     user_svc.authenticate(token)
+#     db_service.insert_text(textDocumentRequestDTO)
+#     return 200
 
-@app.get("/{heading}")
-def get_text(heading : str, token: str = Depends(oauth2_scheme)) -> List[TextDocumentRequestDTO]:
-    user_svc.authenticate(token)
-    result = db_service.get_text(heading)
-    return result
-
-@app.post("/user/register")
-def register(user: User):
-    usr = user_svc.register(user)
-
-    if usr is not False:
-        return {"message": f"User {user.username} registered successfully!"}
-    else:
-        raise HTTPException(status_code=422, detail="User already exists")
-
-@app.post("/token")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    access_token = user_svc.get_access_token(form_data)
-
-    if access_token is not None:
-        return {"access_token": access_token, "token_type": "bearer"}
-    else: raise HTTPException(status_code=400, detail="Incorrect username or password")
+# @app.get("/{heading}", tags=["Text"])
+# def get_text(heading : str, token: str = Depends(oauth2_scheme)) -> List[TextDocumentRequestDTO]:
+#     user_svc.authenticate(token)
+#     result = db_service.get_text(heading)
+#     return result
 
 if __name__ == '__main__':
-    uvicorn.run("app:app",host='0.0.0.0', port=8000, reload=True)
+    uvicorn.run("app:app",host='0.0.0.0', port=8001, reload=True)
