@@ -10,6 +10,7 @@ from datetime import timedelta
 from passlib.hash import bcrypt
 from datetime import datetime
 import jwt
+from jwt import PyJWTError
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -64,3 +65,13 @@ class UserRepository(IUserRepository):
             data={"sub": form_data.username}, expires_delta=access_token_expires
         )
         return access_token
+
+    def authenticate(self, token: str):
+        try:
+            payload = jwt.decode(token, os.environ.get("SECRET_KEY"), algorithms=[os.environ.get("ALGORITHM")])
+            username: str = payload.get("sub")
+            if username is None:
+                return 400
+            return 200
+        except PyJWTError:
+            return 401

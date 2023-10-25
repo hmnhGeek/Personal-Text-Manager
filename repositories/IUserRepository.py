@@ -15,3 +15,6 @@ class IUserRepository:
 
     @abstractmethod
     def get_access_token(self, form_data: OAuth2PasswordRequestForm = Depends()): pass
+
+    @abstractmethod
+    def authenticate(self, token: str): pass

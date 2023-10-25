@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.middleware.cors import CORSMiddleware
 from services.dbservice import DBService
 from DTOs.request.TextDocumentRequestDTO import TextDocumentRequestDTO
@@ -7,9 +7,10 @@ from services.UserService import UserService
 from DTOs.User import User
 import uvicorn
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jwt import PyJWTError
+import jwt
 
 app = FastAPI()
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,6 +23,8 @@ app.add_middleware(
 db_service = DBService()
 user_svc = UserService()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 @app.get("/")
 async def root():
     return {"message": "200 OK"}
@@ -32,7 +35,12 @@ def insert_text(textDocumentRequestDTO : TextDocumentRequestDTO):
     return 200
 
 @app.get("/{heading}")
-def get_text(heading : str) -> List[TextDocumentRequestDTO]:
+def get_text(heading : str, token: str = Depends(oauth2_scheme)) -> List[TextDocumentRequestDTO]:
+    status = user_svc.authenticate(token)
+
+    if status == 400: raise HTTPException(status_code=400, detail="Could not validate credentials, user not found.")
+    if status == 401: raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
+
     result = db_service.get_text(heading)
     return result
 

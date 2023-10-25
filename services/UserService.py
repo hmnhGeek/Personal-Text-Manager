@@ -11,5 +11,7 @@ class UserService:
         return self.userRepository.register(user)
 
     def get_access_token(self, form_data: OAuth2PasswordRequestForm = Depends()):
-        print("Getting")
         return self.userRepository.get_access_token(form_data)
+
+    def authenticate(self, token: str):
+        return self.userRepository.authenticate(token)
