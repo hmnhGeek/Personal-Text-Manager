@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from controllers.UserController import user_controller_router
 from controllers.TextController import text_controller_router
+from controllers.PromptManagerController import prompt_manager_controller_router
 import os
 from dotenv import load_dotenv
 
@@ -12,11 +13,13 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 tags_metadata = [
     {"name": "Users", "description": "Operations related to user management"},
     {"name": "Text", "description": "Operations related to text management"},
+    {"name": "Prompt Manager", "description": "Operations related to prompt management."}
 ]
 
 # Include the routers from controller modules
 app.include_router(user_controller_router, prefix="/users", tags=["Users"])
 app.include_router(text_controller_router, prefix="/texts", tags=["Text"])
+app.include_router(prompt_manager_controller_router, prefix="/prompt_manager", tags=["Prompt Manager"])
 
 app.add_middleware(
     CORSMiddleware,
