@@ -10,3 +10,6 @@ class PromptManagerService:
 
     def add_prompt_to_object(self, addPromptDTO: AddPromptDTO):
         return self.promptManagerRepository.add_prompt_to_object(addPromptDTO)
+
+    def get_prompts_from_platform(self, platform_url: str):
+        return self.promptManagerRepository.get_prompts_from_platform(platform_url)

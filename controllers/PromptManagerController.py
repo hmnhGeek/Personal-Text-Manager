@@ -21,6 +21,11 @@ class PromptManagerController:
         return self.promptManagerService.add_new_prompt_object(promptManagerRequestDTO)
 
     @prompt_manager_controller_router.post("/add_prompt_to_object")
-    def add_new_prompt_object(self, addPromptDTO: AddPromptDTO, token: str = Depends(oauth2_scheme)):
+    def add_prompt_to_object(self, addPromptDTO: AddPromptDTO, token: str = Depends(oauth2_scheme)):
         self.userService.authenticate(token)
         return self.promptManagerService.add_prompt_to_object(addPromptDTO)
+
+    @prompt_manager_controller_router.get("/get_prompts_from_platform_url")
+    def get_prompts_from_platform(self, platform_url: str, token: str = Depends(oauth2_scheme)):
+        self.userService.authenticate(token)
+        return self.promptManagerService.get_prompts_from_platform(platform_url)

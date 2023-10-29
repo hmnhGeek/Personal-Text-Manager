@@ -2,6 +2,7 @@ from repositories.IPromptManagerRepository import IPromptManagerRepository
 import os, datetime
 from dotenv import load_dotenv
 from DTOs.request.PromptManagerRequestDTO import PromptManagerRequestDTO, AddPromptDTO
+from DTOs.response.PromptManagerResponseDTO import PromptManagerResponseDTO
 from entity_manager.entity_manager import entity_manager
 from DTOs.CustomResponseMessage import CustomResponseMessage
 import re
@@ -61,3 +62,13 @@ class PromptManagerRepository(IPromptManagerRepository):
                 status_code = 404,
                 message = "The document does not exist."
             )
+    
+    def get_prompts_from_platform(self, platform_url: str):
+        documents = self.em.find({"platform": re.compile(platform_url, re.IGNORECASE)})
+
+        if documents is not None: 
+           return [PromptManagerResponseDTO(**document) for document in documents]
+        return CustomResponseMessage(
+            status_code = 404,
+            message = "Object not found for given platform."
+        )

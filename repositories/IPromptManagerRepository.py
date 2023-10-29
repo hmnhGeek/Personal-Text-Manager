@@ -8,3 +8,6 @@ class IPromptManagerRepository:
 
     @abstractmethod
     def add_prompt_to_object(self, addPromptDTO: AddPromptDTO) -> CustomResponseMessage: pass
+
+    @abstractmethod
+    def get_prompts_from_platform(self, platform_url: str): pass
