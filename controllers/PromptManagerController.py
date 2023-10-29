@@ -4,7 +4,7 @@ from services.PromptManagerService import PromptManagerService
 from services.UserService import UserService
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import Depends
-from DTOs.request.PromptManagerRequestDTO import PromptManagerRequestDTO
+from DTOs.request.PromptManagerRequestDTO import PromptManagerRequestDTO, AddPromptDTO
 
 prompt_manager_controller_router = InferringRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
@@ -19,3 +19,8 @@ class PromptManagerController:
     def add_new_prompt_object(self, promptManagerRequestDTO: PromptManagerRequestDTO, token: str = Depends(oauth2_scheme)):
         self.userService.authenticate(token)
         return self.promptManagerService.add_new_prompt_object(promptManagerRequestDTO)
+
+    @prompt_manager_controller_router.post("/add_prompt_to_object")
+    def add_new_prompt_object(self, addPromptDTO: AddPromptDTO, token: str = Depends(oauth2_scheme)):
+        self.userService.authenticate(token)
+        return self.promptManagerService.add_prompt_to_object(addPromptDTO)
