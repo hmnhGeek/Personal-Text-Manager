@@ -18,5 +18,4 @@ class PromptManagerController:
     @prompt_manager_controller_router.post("/add_new_prompt_object")
     def add_new_prompt_object(self, promptManagerRequestDTO: PromptManagerRequestDTO, token: str = Depends(oauth2_scheme)):
         self.userService.authenticate(token)
-        self.promptManagerService.add_new_prompt_object(promptManagerRequestDTO)
-        return 200
+        return self.promptManagerService.add_new_prompt_object(promptManagerRequestDTO)

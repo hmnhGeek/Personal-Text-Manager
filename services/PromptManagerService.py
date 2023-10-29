@@ -6,4 +6,4 @@ class PromptManagerService:
         self.promptManagerRepository = PromptManagerRepository()
 
     def add_new_prompt_object(self, promptManagerRequestDTO: PromptManagerRequestDTO):
-        self.promptManagerRepository.add_new_prompt_object(promptManagerRequestDTO)
+        return self.promptManagerRepository.add_new_prompt_object(promptManagerRequestDTO)
