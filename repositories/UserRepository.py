@@ -78,7 +78,7 @@ class UserRepository(IUserRepository):
             # Check if the token has expired
             expiry_time = payload.get("exp")
             if expiry_time is None or expiry_time < datetime.utcnow().timestamp():
-                self.activeSessionsEntityManager.delete_one({"username": username})
+                self.activeSessionsEntityManager.delete_many({"username": username})
                 raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
             
             # Check if the username exists in the active sessions
@@ -106,4 +106,27 @@ class UserRepository(IUserRepository):
             raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
 
     def logout(self, token: str):
-        self.activeSessionsEntityManager.delete_one({"access_token": token})
+        self.activeSessionsEntityManager.delete_many({"access_token": token})
+    
+    def is_session_active(self, username: str):
+        # First, check if the user has an active session
+        existing_session = self.activeSessionsEntityManager.find_one({"username": username})
+        if not existing_session: return False
+
+        # If an active session exists, check if the token is still valid
+        try:
+            payload = jwt.decode(existing_session["access_token"], os.environ.get("SECRET_KEY"), algorithms=[os.environ.get("ALGORITHM")])
+            expiry_time = payload.get("exp")
+            current_time = datetime.utcnow().timestamp()
+
+            if expiry_time is None or expiry_time < current_time:
+                # Token has expired
+                self.activeSessionsEntityManager.delete_many({"username": username})
+                return False
+        
+        except PyJWTError:
+            # there was an error in processing the token, delete the session and return false as session is no longer active.
+            self.activeSessionsEntityManager.delete_many({"username": username})
+            return False
+
+        return True

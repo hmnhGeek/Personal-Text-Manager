@@ -24,3 +24,6 @@ class IUserRepository:
 
     @abstractmethod
     def logout(self, token: str): pass
+
+    @abstractmethod
+    def is_session_active(self, username: str): pass

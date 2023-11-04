@@ -21,3 +21,6 @@ class UserService:
 
     def logout(self, token: str):
         self.userRepository.logout(token)
+
+    def is_session_active(self, username: str):
+        return self.userRepository.is_session_active(username)
