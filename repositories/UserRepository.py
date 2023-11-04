@@ -1,6 +1,6 @@
 from repositories.IUserRepository import IUserRepository
 from entity_manager.entity_manager import entity_manager
-from DTOs.User import User
+from DTOs.User import User, ActiveSession
 import os
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -22,6 +22,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class UserRepository(IUserRepository):
     def __init__(self):
         self.em = entity_manager.get_collection(os.environ.get("USER_COLLECTION"))
+        self.activeSessionsEntityManager = entity_manager.get_collection(os.environ.get("ACTIVE_SESSIONS_COLLECTION"))
     
     def register(self, user : User):
         usr = self.em.find_one({"username": user.username})
@@ -73,5 +74,36 @@ class UserRepository(IUserRepository):
             username: str = payload.get("sub")
             if username is None:
                 raise HTTPException(status_code=400, detail="Could not validate credentials, user not found.")
+
+            # Check if the token has expired
+            expiry_time = payload.get("exp")
+            if expiry_time is None or expiry_time < datetime.utcnow().timestamp():
+                self.activeSessionsEntityManager.delete_one({"username": username})
+                raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
+            
+            # Check if the username exists in the active sessions
+            session = self.sessions.find_one({"username": username})
+            if not session:
+                raise HTTPException(status_code=401, detail="User session not found.")
+            
         except PyJWTError:
             raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
+
+    def register_token_in_session(self, token: str):
+        try:
+            payload = jwt.decode(token, os.environ.get("SECRET_KEY"), algorithms=[os.environ.get("ALGORITHM")])
+            user, expiration_time = payload.get("sub"), payload.get("exp")
+            expiration_datetime = datetime.utcfromtimestamp(expiration_time)
+
+            new_active_session = ActiveSession(
+                username=user,
+                access_token=token,
+                expiry_time=expiration_datetime
+            )
+
+            self.activeSessionsEntityManager.insert_one(new_active_session.dict())
+        except PyJWTError:
+            raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
+
+    def logout(self, token: str):
+        self.activeSessionsEntityManager.delete_one({"access_token": token})

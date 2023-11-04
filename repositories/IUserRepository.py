@@ -18,3 +18,9 @@ class IUserRepository:
 
     @abstractmethod
     def authenticate(self, token: str): pass
+
+    @abstractmethod
+    def register_token_in_session(self, token: str): pass
+
+    @abstractmethod
+    def logout(self, token: str): pass

@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Header
 from fastapi.security import OAuth2PasswordRequestForm
 from services.UserService import UserService
 from DTOs.User import User
@@ -26,5 +26,11 @@ class UserController:
         access_token = self.userService.get_access_token(form_data)
 
         if access_token is not None:
+            self.userService.register_token_in_session(access_token)
             return {"access_token": access_token, "token_type": "bearer"}
         else: raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    @user_controller_router.post("/logout")
+    def logout(self, token: str = Header(None)):
+        if token is None: raise HTTPException(status_code=401, detail="Invalid token")
+        self.userService.logout(token)
