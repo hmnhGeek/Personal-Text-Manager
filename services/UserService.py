@@ -15,3 +15,12 @@ class UserService:
 
     def authenticate(self, token: str):
         return self.userRepository.authenticate(token)
+
+    def register_token_in_session(self, token: str):
+        self.userRepository.register_token_in_session(token)
+
+    def logout(self, token: str):
+        self.userRepository.logout(token)
+
+    def is_session_active(self, username: str):
+        return self.userRepository.is_session_active(username)
