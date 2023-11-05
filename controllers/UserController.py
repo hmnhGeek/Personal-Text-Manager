@@ -22,7 +22,7 @@ class UserController:
             else:
                 raise HTTPException(status_code=422, detail="User already exists")
         except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(status_code=e.status_code, detail=str(e.detail))
     
     @user_controller_router.post("/token")
     def get_access_token(self, form_data: OAuth2PasswordRequestForm = Depends()):
@@ -32,7 +32,7 @@ class UserController:
                 raise HTTPException(status_code=400, detail="Incorrect username or password")
             return access_token
         except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(status_code=e.status_code, detail=str(e.detail))
 
     @user_controller_router.post("/logout")
     def logout(self, token: str = Header(None)):
@@ -41,4 +41,4 @@ class UserController:
             self.userService.logout(token)
             return CustomResponseMessage(status_code = 200, message = "Logged out successfully")
         except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(status_code=e.status_code, detail=str(e.detail))
