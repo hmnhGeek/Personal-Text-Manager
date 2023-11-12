@@ -29,3 +29,8 @@ class PromptManagerController:
     def get_prompts_from_platform(self, platform_url: str, token: str = Depends(oauth2_scheme)):
         self.userService.authenticate(token)
         return self.promptManagerService.get_prompts_from_platform(platform_url)
+
+    @prompt_manager_controller_router.get("/get_all_platforms")
+    def get_all_platforms(self, token: str = Depends(oauth2_scheme)):
+        self.userService.authenticate(token)
+        return self.promptManagerService.get_all_platforms()

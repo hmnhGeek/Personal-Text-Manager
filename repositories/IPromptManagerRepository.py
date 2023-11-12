@@ -11,3 +11,6 @@ class IPromptManagerRepository:
 
     @abstractmethod
     def get_prompts_from_platform(self, platform_url: str): pass
+
+    @abstractmethod
+    def get_all_platforms(self): pass

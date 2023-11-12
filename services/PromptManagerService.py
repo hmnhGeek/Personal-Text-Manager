@@ -13,3 +13,6 @@ class PromptManagerService:
 
     def get_prompts_from_platform(self, platform_url: str):
         return self.promptManagerRepository.get_prompts_from_platform(platform_url)
+    
+    def get_all_platforms(self):
+        return self.promptManagerRepository.get_all_platforms()

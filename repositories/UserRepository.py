@@ -82,7 +82,7 @@ class UserRepository(IUserRepository):
                 raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
             
             # Check if the username exists in the active sessions
-            session = self.sessions.find_one({"username": username})
+            session = self.activeSessionsEntityManager.find_one({"username": username})
             if not session:
                 raise HTTPException(status_code=401, detail="User session not found.")
             

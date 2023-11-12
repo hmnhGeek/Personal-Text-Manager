@@ -6,6 +6,7 @@ from DTOs.response.PromptManagerResponseDTO import PromptManagerResponseDTO
 from entity_manager.entity_manager import entity_manager
 from DTOs.CustomResponseMessage import CustomResponseMessage
 import re
+from entities.PromptManager import PromptManager
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -72,3 +73,15 @@ class PromptManagerRepository(IPromptManagerRepository):
             status_code = 404,
             message = "Object not found for given platform."
         )
+    
+    def get_all_platforms(self):
+        fields = [field for field in PromptManager.__annotations__.keys() if field != "_id"]
+        
+        if fields:
+            unique_platforms = self.em.distinct(fields[0])
+            return unique_platforms
+        else:
+            return CustomResponseMessage(
+                status_code = 404,
+                message = "No fields were found to fetch distinct details."
+            )
