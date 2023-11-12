@@ -27,3 +27,6 @@ class IUserRepository:
 
     @abstractmethod
     def is_session_active(self, username: str): pass
+
+    @abstractmethod
+    def get_access_token_from_active_session(self, username: str): pass

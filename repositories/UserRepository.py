@@ -130,3 +130,8 @@ class UserRepository(IUserRepository):
             return False
 
         return True
+
+    def get_access_token_from_active_session(self, username: str):
+        existing_session = self.activeSessionsEntityManager.find_one({"username": username})
+        if existing_session is not None: return existing_session["access_token"]
+        return None
