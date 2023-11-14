@@ -11,6 +11,7 @@ class UserService:
         return self.userRepository.register(user)
 
     def get_access_token(self, form_data: OAuth2PasswordRequestForm = Depends()):
+        if not self.userRepository.is_password_correct(form_data): return {"access_token": None, type: "bearer"}
         if not self.is_session_active(form_data.username):
             access_token = self.userRepository.get_access_token(form_data)
 

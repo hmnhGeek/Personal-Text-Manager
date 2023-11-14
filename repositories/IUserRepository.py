@@ -20,6 +20,9 @@ class IUserRepository:
     def authenticate(self, token: str): pass
 
     @abstractmethod
+    def is_password_correct(self, form_data: OAuth2PasswordRequestForm = Depends()) -> bool: pass
+
+    @abstractmethod
     def register_token_in_session(self, token: str): pass
 
     @abstractmethod

@@ -56,12 +56,15 @@ class UserRepository(IUserRepository):
         
         return None
 
-    def get_access_token(self, form_data: OAuth2PasswordRequestForm = Depends()):
+    def is_password_correct(self, form_data: OAuth2PasswordRequestForm = Depends()) -> bool:
         user = self.get_user(form_data.username)
 
         if user is None or not pwd_context.verify(form_data.password, user.password):
-            return None
-        
+            return False
+
+        return True
+
+    def get_access_token(self, form_data: OAuth2PasswordRequestForm = Depends()):        
         access_token_expires = timedelta(minutes=int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")))
         access_token = self.create_access_token(
             data={"sub": form_data.username}, expires_delta=access_token_expires
