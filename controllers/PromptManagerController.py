@@ -18,19 +18,23 @@ class PromptManagerController:
     @prompt_manager_controller_router.post("/add_new_prompt_object")
     def add_new_prompt_object(self, promptManagerRequestDTO: PromptManagerRequestDTO, token: str = Depends(oauth2_scheme)):
         self.userService.authenticate(token)
-        return self.promptManagerService.add_new_prompt_object(promptManagerRequestDTO)
+        decoded_username = self.userService.get_username_from_token(token)
+        return self.promptManagerService.add_new_prompt_object(promptManagerRequestDTO, decoded_username)
 
     @prompt_manager_controller_router.post("/add_prompt_to_object")
     def add_prompt_to_object(self, addPromptDTO: AddPromptDTO, token: str = Depends(oauth2_scheme)):
         self.userService.authenticate(token)
-        return self.promptManagerService.add_prompt_to_object(addPromptDTO)
+        decoded_username = self.userService.get_username_from_token(token)
+        return self.promptManagerService.add_prompt_to_object(addPromptDTO, decoded_username)
 
     @prompt_manager_controller_router.get("/get_prompts_from_platform_url")
     def get_prompts_from_platform(self, platform_url: str, token: str = Depends(oauth2_scheme)):
         self.userService.authenticate(token)
-        return self.promptManagerService.get_prompts_from_platform(platform_url)
+        decoded_username = self.userService.get_username_from_token(token)
+        return self.promptManagerService.get_prompts_from_platform(platform_url, decoded_username)
 
     @prompt_manager_controller_router.get("/get_all_platforms")
     def get_all_platforms(self, token: str = Depends(oauth2_scheme)):
         self.userService.authenticate(token)
-        return self.promptManagerService.get_all_platforms()
+        decoded_username = self.userService.get_username_from_token(token)
+        return self.promptManagerService.get_all_platforms(decoded_username)

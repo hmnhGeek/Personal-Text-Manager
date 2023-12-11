@@ -15,7 +15,7 @@ class PromptManagerRepository(IPromptManagerRepository):
     def __init__(self):
         self.em = entity_manager.get_collection(os.environ.get("PROMPT_MANAGER_COLLECTION"))
 
-    def add_new_prompt_object(self, promptManagerRequestDTO: PromptManagerRequestDTO):
+    def add_new_prompt_object(self, promptManagerRequestDTO: PromptManagerRequestDTO, added_by: str):
         document = self.em.find_one(
             {
                 "platform": re.compile(promptManagerRequestDTO.platformUrl, re.IGNORECASE),
@@ -28,17 +28,19 @@ class PromptManagerRepository(IPromptManagerRepository):
                 "platform": promptManagerRequestDTO.platformUrl,
                 "title": promptManagerRequestDTO.title,
                 "prompts": promptManagerRequestDTO.prompts,
+                "username": added_by,
                 "update_timestamp": datetime.datetime.now()
             })
             return promptManagerRequestDTO
         else:
             return CustomResponseMessage(status_code=409, message = "The prompt object already exists.")
 
-    def add_prompt_to_object(self, addPromptDTO: AddPromptDTO) -> CustomResponseMessage:
+    def add_prompt_to_object(self, addPromptDTO: AddPromptDTO, added_by: str) -> CustomResponseMessage:
         document = self.em.find_one(
             {
                 "platform": re.compile(addPromptDTO.platformUrl, re.IGNORECASE),
-                "title": re.compile(addPromptDTO.title, re.IGNORECASE)
+                "title": re.compile(addPromptDTO.title, re.IGNORECASE),
+                "username": re.compile(added_by, re.IGNORECASE),
             }
         )
 
@@ -51,6 +53,7 @@ class PromptManagerRepository(IPromptManagerRepository):
                     "platform": document["platform"],
                     "title": document["title"],
                     "prompts": current_prompts,
+                    "username": document["username"],
                     "update_timestamp": datetime.datetime.now()
                 }
             })
@@ -64,8 +67,8 @@ class PromptManagerRepository(IPromptManagerRepository):
                 message = "The document does not exist."
             )
     
-    def get_prompts_from_platform(self, platform_url: str):
-        documents = self.em.find({"platform": re.compile(platform_url, re.IGNORECASE)})
+    def get_prompts_from_platform(self, platform_url: str, username: str):
+        documents = self.em.find({"platform": re.compile(platform_url, re.IGNORECASE), "username": re.compile(username, re.IGNORECASE)})
 
         if documents is not None: 
            return [PromptManagerResponseDTO(**document) for document in documents]
@@ -74,11 +77,11 @@ class PromptManagerRepository(IPromptManagerRepository):
             message = "Object not found for given platform."
         )
     
-    def get_all_platforms(self):
+    def get_all_platforms(self, username: str):
         fields = [field for field in PromptManager.__annotations__.keys() if field != "_id"]
         
         if fields:
-            unique_platforms = self.em.distinct(fields[0])
+            unique_platforms = self.em.find({"username": re.compile(username, re.IGNORECASE)}).distinct(fields[0])
             return unique_platforms
         else:
             return CustomResponseMessage(

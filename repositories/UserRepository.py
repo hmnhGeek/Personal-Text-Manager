@@ -138,3 +138,13 @@ class UserRepository(IUserRepository):
         existing_session = self.activeSessionsEntityManager.find_one({"username": username})
         if existing_session is not None: return existing_session["access_token"]
         return None
+
+    def get_username_from_token(self, token: str) -> str:
+        if token is None: return None
+        if len(token) == 0: return None
+        try:
+            payload = jwt.decode(token, os.environ.get("SECRET_KEY"), algorithms=[os.environ.get("ALGORITHM")])
+            username: str = payload.get("sub")
+            return username
+        except PyJWTError:
+            raise HTTPException(status_code=401, detail="Authentication failed, invalid or expired token.")
