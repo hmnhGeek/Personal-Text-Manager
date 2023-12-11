@@ -33,3 +33,6 @@ class UserService:
 
     def is_session_active(self, username: str):
         return self.userRepository.is_session_active(username)
+    
+    def get_username_from_token(self, token: str) -> str:
+        return self.userRepository.get_username_from_token(token)

@@ -8,4 +8,5 @@ class PromptManager(BaseModel):
     platform: str
     title: str
     prompts: List[str]
+    username: str
     update_timestamp: datetime.datetime

@@ -33,3 +33,6 @@ class IUserRepository:
 
     @abstractmethod
     def get_access_token_from_active_session(self, username: str): pass
+
+    @abstractmethod
+    def get_username_from_token(self, token: str) -> str: pass
